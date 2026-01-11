@@ -1,0 +1,34 @@
+{
+  "name": "classic",
+  "description": "经典主题 - 原版寸止风格",
+  "tool_interaction": {
+    "id": "zhi",
+    "display_name": "寸止",
+    "description": "智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传",
+    "icon": "i-carbon-chat text-lg text-blue-600 dark:text-blue-400",
+    "icon_bg": "bg-blue-100 dark:bg-blue-900"
+  },
+  "tool_memory": {
+    "id": "ji",
+    "display_name": "记忆管理",
+    "description": "全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践",
+    "icon": "i-carbon-data-base text-lg text-purple-600 dark:text-purple-400",
+    "icon_bg": "bg-green-100 dark:bg-green-900"
+  },
+  "tool_search": {
+    "id": "sou",
+    "display_name": "代码搜索",
+    "description": "基于查询在特定项目中搜索相关的代码上下文，支持语义搜索和增量索引",
+    "icon": "i-carbon-search text-lg text-green-600 dark:text-green-400",
+    "icon_bg": "bg-green-100 dark:bg-green-900"
+  },
+  "messages": {
+    "server_name": "Zhi-mcp",
+    "server_intro": "Zhi 智能代码审查工具，支持交互式对话和记忆管理",
+    "continue_prompt": "请按照最佳实践继续",
+    "tool_disabled_msg": "{tool}工具已被禁用",
+    "leader_cannot_disable_msg": "寸止工具是必需的，无法禁用",
+    "param_parse_error_msg": "参数解析失败: {error}",
+    "unknown_tool_msg": "未知的工具: {tool}"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "naruto",
+  "description": "火影忍者主题 - 木叶忍者",
+  "tool_interaction": {
+    "id": "naruto",
+    "display_name": "鸣人",
+    "description": "🍥 七代目火影！负责与忍者们沟通，支持忍术选项、自由对话和影像情报",
+    "icon": "i-carbon-chat text-lg text-orange-600 dark:text-orange-400",
+    "icon_bg": "bg-orange-100 dark:bg-orange-900"
+  },
+  "tool_memory": {
+    "id": "shikamaru",
+    "display_name": "鹿丸",
+    "description": "🧠 天才军师！负责记录和管理重要的战术情报、任务记录和忍术心得",
+    "icon": "i-carbon-data-base text-lg text-green-600 dark:text-green-400",
+    "icon_bg": "bg-green-100 dark:bg-green-900"
+  },
+  "tool_search": {
+    "id": "sasuke",
+    "display_name": "佐助",
+    "description": "👁️ 写轮眼使者！精准洞察代码真相，支持语义搜索和深度分析",
+    "icon": "i-carbon-search text-lg text-indigo-600 dark:text-indigo-400",
+    "icon_bg": "bg-indigo-100 dark:bg-indigo-900"
+  },
+  "messages": {
+    "server_name": "Konoha-MCP",
+    "server_intro": "🍃 木叶忍者代码任务！鸣人领队，鹿丸守护情报，佐助掌控搜索。这就是我的忍道！",
+    "continue_prompt": "我绝不会放弃！继续执行任务",
+    "tool_disabled_msg": "{tool}正在修炼中，请先召唤！",
+    "leader_cannot_disable_msg": "鸣人是火影，不能退缩！",
+    "param_parse_error_msg": "{tool}无法理解这个忍术: {error}",
+    "unknown_tool_msg": "这个忍者不属于木叶: {tool}"
+  }
+}

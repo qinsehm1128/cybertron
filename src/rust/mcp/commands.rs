@@ -2,8 +2,7 @@ use std::collections::HashMap;
 use tauri::{AppHandle, State};
 
 use crate::config::{AppState, save_config};
-use crate::constants::mcp;
-// use crate::mcp::tools::acemcp; // 已迁移到独立模块
+use crate::constants::themes::get_theme;
 
 /// MCP工具配置
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
@@ -23,50 +22,51 @@ pub struct MCPToolConfig {
 #[tauri::command]
 pub async fn get_mcp_tools_config(state: State<'_, AppState>) -> Result<Vec<MCPToolConfig>, String> {
     let config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
+    let theme = get_theme();
     
-    // 动态构建赛博坦军团配置列表
+    // 动态构建工具配置列表
     let mut tools = Vec::new();
     
-    // 擎天柱 - 领袖级交互核心，永不退场
+    // 交互工具（领袖）- 永不退场
     tools.push(MCPToolConfig {
-        id: mcp::TOOL_OPTIMUS.to_string(),
-        name: "擎天柱".to_string(),
-        description: "🚛 汽车人领袖！负责与人类盟友建立通信链路，支持战术选项、自由指令输入和图像情报上传".to_string(),
-        enabled: config.mcp_config.tools.get(mcp::TOOL_OPTIMUS).copied().unwrap_or(true),
+        id: theme.tool_interaction.id.clone(),
+        name: theme.tool_interaction.display_name.clone(),
+        description: theme.tool_interaction.description.clone(),
+        enabled: config.mcp_config.tools.get(&theme.tool_interaction.id).copied().unwrap_or(true),
         can_disable: false, // 领袖永不退场
-        icon: "i-carbon-chat text-lg text-blue-600 dark:text-blue-400".to_string(),
-        icon_bg: "bg-blue-100 dark:bg-blue-900".to_string(),
+        icon: theme.tool_interaction.icon.clone(),
+        icon_bg: theme.tool_interaction.icon_bg.clone(),
         dark_icon_bg: "dark:bg-blue-800".to_string(),
         has_config: false,
     });
     
-    // 大黄蜂 - 忠诚的记忆守护者
+    // 记忆工具
     tools.push(MCPToolConfig {
-        id: mcp::TOOL_BUMBLEBEE.to_string(),
-        name: "大黄蜂".to_string(),
-        description: "🚗 忠诚的记忆守护者！负责存储和管理重要的作战规范、盟友偏好和最佳战术".to_string(),
-        enabled: config.mcp_config.tools.get(mcp::TOOL_BUMBLEBEE).copied().unwrap_or(false),
+        id: theme.tool_memory.id.clone(),
+        name: theme.tool_memory.display_name.clone(),
+        description: theme.tool_memory.description.clone(),
+        enabled: config.mcp_config.tools.get(&theme.tool_memory.id).copied().unwrap_or(false),
         can_disable: true,
-        icon: "i-carbon-data-base text-lg text-yellow-600 dark:text-yellow-400".to_string(),
-        icon_bg: "bg-yellow-100 dark:bg-yellow-900".to_string(),
+        icon: theme.tool_memory.icon.clone(),
+        icon_bg: theme.tool_memory.icon_bg.clone(),
         dark_icon_bg: "dark:bg-yellow-800".to_string(),
         has_config: false,
     });
     
-    // 威震天 - 强大的代码搜索引擎
+    // 搜索工具
     tools.push(MCPToolConfig {
-        id: mcp::TOOL_MEGATRON.to_string(),
-        name: "威震天".to_string(),
-        description: "🔫 强大的代码搜索引擎！掌控全局的霸主，支持语义搜索和增量索引".to_string(),
-        enabled: config.mcp_config.tools.get(mcp::TOOL_MEGATRON).copied().unwrap_or(false),
+        id: theme.tool_search.id.clone(),
+        name: theme.tool_search.display_name.clone(),
+        description: theme.tool_search.description.clone(),
+        enabled: config.mcp_config.tools.get(&theme.tool_search.id).copied().unwrap_or(false),
         can_disable: true,
-        icon: "i-carbon-search text-lg text-purple-600 dark:text-purple-400".to_string(),
-        icon_bg: "bg-purple-100 dark:bg-purple-900".to_string(),
+        icon: theme.tool_search.icon.clone(),
+        icon_bg: theme.tool_search.icon_bg.clone(),
         dark_icon_bg: "dark:bg-purple-800".to_string(),
         has_config: true,
     });
     
-    // 按启用状态排序，出战的在前
+    // 按启用状态排序，启用的在前
     tools.sort_by(|a, b| b.enabled.cmp(&a.enabled));
     
     Ok(tools)
@@ -80,15 +80,17 @@ pub async fn set_mcp_tool_enabled(
     state: State<'_, AppState>,
     app: AppHandle,
 ) -> Result<(), String> {
+    let theme = get_theme();
+    
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
         
-        // 擎天柱是领袖，不可禁用
-        if tool_id == mcp::TOOL_OPTIMUS && !enabled {
-            return Err("擎天柱是汽车人领袖，永不退场！".to_string());
+        // 领袖工具不可禁用
+        if tool_id == theme.tool_interaction.id && !enabled {
+            return Err(theme.messages.leader_cannot_disable_msg.clone());
         }
         
-        // 更新战士状态
+        // 更新工具状态
         config.mcp_config.tools.insert(tool_id.clone(), enabled);
     }
     
@@ -97,7 +99,7 @@ pub async fn set_mcp_tool_enabled(
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
     // 记录状态变更
-    log::info!("赛博坦战士 {} 状态已更新为: {}", tool_id, if enabled { "出战" } else { "待命" });
+    log::info!("工具 {} 状态已更新为: {}", tool_id, if enabled { "启用" } else { "禁用" });
 
     Ok(())
 }
@@ -115,13 +117,15 @@ pub async fn reset_mcp_tools_config(
     state: State<'_, AppState>,
     app: AppHandle,
 ) -> Result<(), String> {
+    let theme = get_theme();
+    
     {
         let mut config = state.config.lock().map_err(|e| format!("获取配置失败: {}", e))?;
-        let default_config = mcp::get_default_mcp_config();
         config.mcp_config.tools.clear();
-        for tool in &default_config.tools {
-            config.mcp_config.tools.insert(tool.tool_id.clone(), tool.enabled);
-        }
+        // 领袖工具默认启用，其他默认禁用
+        config.mcp_config.tools.insert(theme.tool_interaction.id.clone(), true);
+        config.mcp_config.tools.insert(theme.tool_memory.id.clone(), false);
+        config.mcp_config.tools.insert(theme.tool_search.id.clone(), false);
     }
     
     // 保存配置
@@ -129,7 +133,7 @@ pub async fn reset_mcp_tools_config(
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
     // 记录配置重置
-    log::info!("赛博坦军团配置已重置为初始状态！汽车人，变形出发！");
+    log::info!("MCP工具配置已重置为默认值");
     Ok(())
 }
 

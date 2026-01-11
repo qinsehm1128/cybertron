@@ -343,10 +343,13 @@ pub fn default_continue_prompt() -> String {
 }
 
 pub fn default_mcp_tools() -> HashMap<String, bool> {
+    use crate::constants::themes::get_theme;
+    let theme = get_theme();
+    
     let mut tools = HashMap::new();
-    tools.insert(mcp::TOOL_OPTIMUS.to_string(), true); // 擎天柱默认出战
-    tools.insert(mcp::TOOL_BUMBLEBEE.to_string(), false); // 大黄蜂默认待命
-    tools.insert(mcp::TOOL_MEGATRON.to_string(), false); // 威震天默认休眠
+    tools.insert(theme.tool_interaction.id.clone(), true);  // 领袖工具默认启用
+    tools.insert(theme.tool_memory.id.clone(), false);      // 记忆工具默认禁用
+    tools.insert(theme.tool_search.id.clone(), false);      // 搜索工具默认禁用
     tools
 }
 

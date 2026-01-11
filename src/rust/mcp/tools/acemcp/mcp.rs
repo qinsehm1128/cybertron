@@ -67,16 +67,21 @@ impl AcemcpTool {
 
     /// 获取工具定义
     pub fn get_tool_definition() -> Tool {
+        Self::get_tool_definition_with_theme(crate::constants::themes::get_theme())
+    }
+
+    /// 获取工具定义（使用指定主题）
+    pub fn get_tool_definition_with_theme(theme: &crate::constants::themes::McpTheme) -> Tool {
         let schema = serde_json::json!({
             "type": "object",
             "properties": {
                 "project_root_path": {
                     "type": "string",
-                    "description": "作战基地的绝对路径，使用正斜杠(/)作为分隔符。例如：C:/Users/username/projects/myproject"
+                    "description": "项目根目录的绝对路径，使用正斜杠(/)作为分隔符。例如：C:/Users/username/projects/myproject"
                 },
                 "query": {
                     "type": "string",
-                    "description": "用于搜索相关代码情报的自然语言指令。威震天将执行语义搜索并返回与目标匹配的代码片段。例如：'日志配置设置初始化logger'（搜索日志设置代码）、'用户认证登录'（搜索认证相关代码）、'数据库连接池'（搜索数据库连接代码）。返回带有文件路径和行号的格式化情报。"
+                    "description": "用于搜索相关代码的自然语言查询。执行语义搜索并返回与目标匹配的代码片段。"
                 }
             },
             "required": ["project_root_path", "query"]
@@ -84,8 +89,8 @@ impl AcemcpTool {
 
         if let serde_json::Value::Object(schema_map) = schema {
             Tool {
-                name: Cow::Borrowed("megatron"),
-                description: Some(Cow::Borrowed("🔫 威震天 - 霸天虎领袖！掌控代码搜索的绝对力量，在搜索前自动执行增量索引，确保情报始终是最新的。「我就是力量！」")),
+                name: Cow::Owned(theme.tool_search.id.clone()),
+                description: Some(Cow::Owned(theme.tool_search.description.clone())),
                 input_schema: Arc::new(schema_map),
                 annotations: None,
             }

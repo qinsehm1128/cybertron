@@ -1,0 +1,34 @@
+{
+  "name": "transformers",
+  "description": "变形金刚主题 - 赛博坦军团",
+  "tool_interaction": {
+    "id": "optimus",
+    "display_name": "擎天柱",
+    "description": "🚛 汽车人领袖！负责与人类盟友建立通信链路，支持战术选项、自由指令输入和图像情报上传",
+    "icon": "i-carbon-chat text-lg text-blue-600 dark:text-blue-400",
+    "icon_bg": "bg-blue-100 dark:bg-blue-900"
+  },
+  "tool_memory": {
+    "id": "bumblebee",
+    "display_name": "大黄蜂",
+    "description": "🚗 忠诚的记忆守护者！负责存储和管理重要的作战规范、盟友偏好和最佳战术",
+    "icon": "i-carbon-data-base text-lg text-yellow-600 dark:text-yellow-400",
+    "icon_bg": "bg-yellow-100 dark:bg-yellow-900"
+  },
+  "tool_search": {
+    "id": "megatron",
+    "display_name": "威震天",
+    "description": "🔫 强大的代码搜索引擎！掌控全局的霸主，支持语义搜索和增量索引",
+    "icon": "i-carbon-search text-lg text-purple-600 dark:text-purple-400",
+    "icon_bg": "bg-purple-100 dark:bg-purple-900"
+  },
+  "messages": {
+    "server_name": "Cybertron-MCP",
+    "server_intro": "🤖 赛博坦军团 - 变形金刚代码战队！擎天柱领衔，大黄蜂守护记忆，威震天掌控搜索。汽车人，变形出发！",
+    "continue_prompt": "汽车人，变形出发！继续执行任务",
+    "tool_disabled_msg": "{tool}正在休眠中，请先激活！",
+    "leader_cannot_disable_msg": "擎天柱是汽车人领袖，永不退场！",
+    "param_parse_error_msg": "{tool}无法解析指令: {error}",
+    "unknown_tool_msg": "未知的战士: {tool}，不属于赛博坦军团！"
+  }
+}

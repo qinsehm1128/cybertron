@@ -1,0 +1,34 @@
+{
+  "name": "one_piece",
+  "description": "海贼王主题 - 草帽海贼团",
+  "tool_interaction": {
+    "id": "luffy",
+    "display_name": "路飞",
+    "description": "🏴‍☠️ 草帽海贼团船长！负责与伙伴们沟通，支持战斗选项、自由对话和图像情报",
+    "icon": "i-carbon-chat text-lg text-red-600 dark:text-red-400",
+    "icon_bg": "bg-red-100 dark:bg-red-900"
+  },
+  "tool_memory": {
+    "id": "robin",
+    "display_name": "罗宾",
+    "description": "📚 考古学家！负责记录和管理重要的历史文本、航海日志和冒险记忆",
+    "icon": "i-carbon-data-base text-lg text-purple-600 dark:text-purple-400",
+    "icon_bg": "bg-purple-100 dark:bg-purple-900"
+  },
+  "tool_search": {
+    "id": "nami",
+    "display_name": "娜美",
+    "description": "🗺️ 航海士！精准定位代码宝藏，支持语义搜索和智能导航",
+    "icon": "i-carbon-search text-lg text-orange-600 dark:text-orange-400",
+    "icon_bg": "bg-orange-100 dark:bg-orange-900"
+  },
+  "messages": {
+    "server_name": "StrawHat-MCP",
+    "server_intro": "🏴‍☠️ 草帽海贼团代码冒险！路飞领航，罗宾守护记忆，娜美掌控搜索。出发，去找 One Piece！",
+    "continue_prompt": "我要成为代码之王！继续冒险",
+    "tool_disabled_msg": "{tool}正在休息中，请先叫醒！",
+    "leader_cannot_disable_msg": "路飞是船长，不能下船！",
+    "param_parse_error_msg": "{tool}看不懂这个指令: {error}",
+    "unknown_tool_msg": "这个人不是我们的伙伴: {tool}"
+  }
+}

@@ -8,6 +8,7 @@ pub mod mcp;
 pub mod network;
 pub mod telegram;
 pub mod theme;
+pub mod themes;  // MCP 工具主题配置系统
 pub mod ui;
 pub mod validation;
 pub mod window;
@@ -17,6 +18,7 @@ pub mod window;
 pub use app::*;
 pub use audio::*;
 pub use theme::*;
+pub use themes::McpTheme;  // 导出主题配置
 pub use ui::*;
 pub use validation::*;
 pub use window::*;

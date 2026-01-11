@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use super::tools::{InteractionTool, MemoryTool, AcemcpTool};
 use super::types::{ZhiRequest, JiyiRequest};
 use crate::config::load_standalone_config;
+use crate::constants::themes::get_theme;
 use crate::{log_important, log_debug};
 
 #[derive(Clone)]
@@ -57,14 +58,15 @@ impl ZhiServer {
 
 impl ServerHandler for ZhiServer {
     fn get_info(&self) -> ServerInfo {
+        let theme = get_theme();
         ServerInfo {
             protocol_version: ProtocolVersion::V_2024_11_05,
             capabilities: ServerCapabilities::builder().enable_tools().build(),
             server_info: Implementation {
-                name: "Cybertron-MCP".to_string(),
+                name: theme.messages.server_name.clone(),
                 version: env!("CARGO_PKG_VERSION").to_string(),
             },
-            instructions: Some("🤖 赛博坦军团 - 变形金刚代码战队！擎天柱领衔，大黄蜂守护记忆，威震天掌控搜索。汽车人，变形出发！".to_string()),
+            instructions: Some(theme.messages.server_intro.clone()),
         }
     }
 
@@ -84,20 +86,21 @@ impl ServerHandler for ZhiServer {
         use std::sync::Arc;
         use std::borrow::Cow;
 
+        let theme = get_theme();
         let mut tools = Vec::new();
 
-        // 擎天柱 - 领袖级交互核心（必需工具，永不退场）
-        let optimus_schema = serde_json::json!({
+        // 交互工具（领袖）- 必需工具，永不退场
+        let interaction_schema = serde_json::json!({
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
-                    "description": "擎天柱要传达给人类盟友的信息"
+                    "description": format!("{}要传达的信息", theme.tool_interaction.display_name)
                 },
                 "predefined_options": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "预设的战术选项列表（可选）"
+                    "description": "预设的选项列表（可选）"
                 },
                 "is_markdown": {
                     "type": "boolean",
@@ -107,56 +110,56 @@ impl ServerHandler for ZhiServer {
             "required": ["message"]
         });
 
-        if let serde_json::Value::Object(schema_map) = optimus_schema {
+        if let serde_json::Value::Object(schema_map) = interaction_schema {
             tools.push(Tool {
-                name: Cow::Borrowed("optimus"),
-                description: Some(Cow::Borrowed("🚛 擎天柱 - 汽车人领袖！负责与人类盟友建立通信链路，支持战术选项、自由指令输入和图像情报上传。「自由是所有智慧生命的权利」")),
+                name: Cow::Owned(theme.tool_interaction.id.clone()),
+                description: Some(Cow::Owned(theme.tool_interaction.description.clone())),
                 input_schema: Arc::new(schema_map),
                 annotations: None,
             });
         }
 
-        // 大黄蜂 - 忠诚的记忆守护者（仅在启用时出战）
-        if self.is_tool_enabled("bumblebee") {
-            let bumblebee_schema = serde_json::json!({
+        // 记忆工具（仅在启用时出战）
+        if self.is_tool_enabled(&theme.tool_memory.id) {
+            let memory_schema = serde_json::json!({
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "description": "任务类型：记忆(存储情报), 回忆(提取战场信息)"
+                        "description": "任务类型：记忆(存储), 回忆(提取)"
                     },
                     "project_path": {
                         "type": "string",
-                        "description": "作战基地路径（必需）"
+                        "description": "项目路径（必需）"
                     },
                     "content": {
                         "type": "string",
-                        "description": "情报内容（存储任务时必需）"
+                        "description": "内容（存储时必需）"
                     },
                     "category": {
                         "type": "string",
-                        "description": "情报分类：rule(作战规则), preference(盟友偏好), pattern(战术模式), context(战场背景)"
+                        "description": "分类：rule(规则), preference(偏好), pattern(模式), context(上下文)"
                     }
                 },
                 "required": ["action", "project_path"]
             });
 
-            if let serde_json::Value::Object(schema_map) = bumblebee_schema {
+            if let serde_json::Value::Object(schema_map) = memory_schema {
                 tools.push(Tool {
-                    name: Cow::Borrowed("bumblebee"),
-                    description: Some(Cow::Borrowed("🚗 大黄蜂 - 忠诚的记忆守护者！负责存储和管理重要的作战规范、盟友偏好和最佳战术。虽然声带受损，但记忆永不磨灭！")),
+                    name: Cow::Owned(theme.tool_memory.id.clone()),
+                    description: Some(Cow::Owned(theme.tool_memory.description.clone())),
                     input_schema: Arc::new(schema_map),
                     annotations: None,
                 });
             }
         }
 
-        // 威震天 - 强大的代码搜索引擎（仅在启用时苏醒）
-        if self.is_tool_enabled("megatron") {
-            tools.push(AcemcpTool::get_tool_definition());
+        // 搜索工具（仅在启用时出战）
+        if self.is_tool_enabled(&theme.tool_search.id) {
+            tools.push(AcemcpTool::get_tool_definition_with_theme(theme));
         }
 
-        log_debug!("赛博坦军团出战名单: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+        log_debug!("工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
 
         Ok(ListToolsResult {
             tools,
@@ -169,69 +172,75 @@ impl ServerHandler for ZhiServer {
         request: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> Result<CallToolResult, McpError> {
-        log_debug!("收到作战指令: {}", request.name);
+        let theme = get_theme();
+        log_debug!("收到工具调用: {}", request.name);
 
-        match request.name.as_ref() {
-            "optimus" => {
-                // 解析作战参数
-                let arguments_value = request.arguments
-                    .map(serde_json::Value::Object)
-                    .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+        let tool_name = request.name.as_ref();
 
-                let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("擎天柱无法解析指令: {}", e), None))?;
+        // 交互工具
+        if tool_name == theme.tool_interaction.id {
+            let arguments_value = request.arguments
+                .map(serde_json::Value::Object)
+                .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
-                // 擎天柱出击
-                InteractionTool::zhi(zhi_request).await
-            }
-            "bumblebee" => {
-                // 检查大黄蜂是否已激活
-                if !self.is_tool_enabled("bumblebee") {
-                    return Err(McpError::internal_error(
-                        "大黄蜂正在休眠中，请先激活！".to_string(),
-                        None
-                    ));
-                }
-
-                // 解析情报参数
-                let arguments_value = request.arguments
-                    .map(serde_json::Value::Object)
-                    .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
-
-                let ji_request: JiyiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("大黄蜂无法解析情报: {}", e), None))?;
-
-                // 大黄蜂执行记忆任务
-                MemoryTool::jiyi(ji_request).await
-            }
-            "megatron" => {
-                // 检查威震天是否已苏醒
-                if !self.is_tool_enabled("megatron") {
-                    return Err(McpError::internal_error(
-                        "威震天尚未苏醒，请先唤醒！".to_string(),
-                        None
-                    ));
-                }
-
-                // 解析搜索参数
-                let arguments_value = request.arguments
-                    .map(serde_json::Value::Object)
-                    .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
-
-                // 使用acemcp模块中的AcemcpRequest类型
-                let acemcp_request: crate::mcp::tools::acemcp::types::AcemcpRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("威震天无法解析目标: {}", e), None))?;
-
-                // 威震天发动搜索攻势
-                AcemcpTool::search_context(acemcp_request).await
-            }
-            _ => {
-                Err(McpError::invalid_request(
-                    format!("未知的战士: {}，不属于赛博坦军团！", request.name),
+            let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
+                .map_err(|e| McpError::invalid_params(
+                    theme.format_msg(&theme.messages.param_parse_error_msg, &theme.tool_interaction.display_name, Some(&e.to_string())),
                     None
-                ))
-            }
+                ))?;
+
+            return InteractionTool::zhi(zhi_request).await;
         }
+
+        // 记忆工具
+        if tool_name == theme.tool_memory.id {
+            if !self.is_tool_enabled(&theme.tool_memory.id) {
+                return Err(McpError::internal_error(
+                    theme.format_msg(&theme.messages.tool_disabled_msg, &theme.tool_memory.display_name, None),
+                    None
+                ));
+            }
+
+            let arguments_value = request.arguments
+                .map(serde_json::Value::Object)
+                .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+
+            let ji_request: JiyiRequest = serde_json::from_value(arguments_value)
+                .map_err(|e| McpError::invalid_params(
+                    theme.format_msg(&theme.messages.param_parse_error_msg, &theme.tool_memory.display_name, Some(&e.to_string())),
+                    None
+                ))?;
+
+            return MemoryTool::jiyi(ji_request).await;
+        }
+
+        // 搜索工具
+        if tool_name == theme.tool_search.id {
+            if !self.is_tool_enabled(&theme.tool_search.id) {
+                return Err(McpError::internal_error(
+                    theme.format_msg(&theme.messages.tool_disabled_msg, &theme.tool_search.display_name, None),
+                    None
+                ));
+            }
+
+            let arguments_value = request.arguments
+                .map(serde_json::Value::Object)
+                .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+
+            let acemcp_request: crate::mcp::tools::acemcp::types::AcemcpRequest = serde_json::from_value(arguments_value)
+                .map_err(|e| McpError::invalid_params(
+                    theme.format_msg(&theme.messages.param_parse_error_msg, &theme.tool_search.display_name, Some(&e.to_string())),
+                    None
+                ))?;
+
+            return AcemcpTool::search_context(acemcp_request).await;
+        }
+
+        // 未知工具
+        Err(McpError::invalid_request(
+            theme.format_msg(&theme.messages.unknown_tool_msg, tool_name, None),
+            None
+        ))
     }
 }
 
@@ -239,6 +248,10 @@ impl ServerHandler for ZhiServer {
 
 /// 启动MCP服务器
 pub async fn run_server() -> Result<(), Box<dyn std::error::Error>> {
+    // 加载主题（会打印日志）
+    let theme = get_theme();
+    log_important!(info, "MCP服务器主题: {} - {}", theme.name, theme.description);
+
     // 创建并运行服务器
     let service = ZhiServer::new()
         .serve(stdio())

@@ -5,9 +5,10 @@ use crate::mcp::{ZhiRequest, PopupRequest};
 use crate::mcp::handlers::{create_tauri_popup, parse_mcp_response};
 use crate::mcp::utils::{generate_request_id, popup_error};
 
-/// 智能代码审查交互工具
+/// 🚛 擎天柱 - 领袖级交互核心
 ///
-/// 支持预定义选项、自由文本输入和图片上传
+/// 负责与人类盟友建立通信链路，支持战术选项、自由指令输入和图像情报上传
+/// 「自由是所有智慧生命的权利」
 #[derive(Clone)]
 pub struct InteractionTool;
 
@@ -28,12 +29,12 @@ impl InteractionTool {
 
         match create_tauri_popup(&popup_request) {
             Ok(response) => {
-                // 解析响应内容，支持文本和图片
+                // 解析响应内容，支持文本和图像情报
                 let content = parse_mcp_response(&response)?;
                 Ok(CallToolResult::success(content))
             }
             Err(e) => {
-                Err(popup_error(e.to_string()).into())
+                Err(popup_error(format!("擎天柱通信链路故障: {}", e)).into())
             }
         }
     }

@@ -1,16 +1,16 @@
-// MCP 工具相关常量
+// MCP 工具相关常量 - 变形金刚战队
 
-/// 寸止工具标识符
-pub const TOOL_ZHI: &str = "zhi";
+/// 擎天柱 - 领袖级交互核心，汽车人的精神领袖
+pub const TOOL_OPTIMUS: &str = "optimus";
 
-/// 记忆管理工具标识符
-pub const TOOL_JI: &str = "ji";
+/// 大黄蜂 - 忠诚的记忆守护者，永不遗忘的战士
+pub const TOOL_BUMBLEBEE: &str = "bumblebee";
 
-/// 代码搜索工具标识符
-pub const TOOL_SOU: &str = "sou";
+/// 威震天 - 强大的代码搜索引擎，掌控全局的霸主
+pub const TOOL_MEGATRON: &str = "megatron";
 
 /// 默认启用的工具列表
-pub const DEFAULT_ENABLED_TOOLS: &[&str] = &[TOOL_ZHI, TOOL_JI, TOOL_SOU];
+pub const DEFAULT_ENABLED_TOOLS: &[&str] = &[TOOL_OPTIMUS, TOOL_BUMBLEBEE, TOOL_MEGATRON];
 
 /// 继续回复默认启用状态
 pub const DEFAULT_CONTINUE_REPLY_ENABLED: bool = true;
@@ -19,7 +19,7 @@ pub const DEFAULT_CONTINUE_REPLY_ENABLED: bool = true;
 pub const DEFAULT_AUTO_CONTINUE_THRESHOLD: u32 = 1000;
 
 /// 默认继续提示词
-pub const DEFAULT_CONTINUE_PROMPT: &str = "请按照最佳实践继续";
+pub const DEFAULT_CONTINUE_PROMPT: &str = "汽车人，变形出发！继续执行任务";
 
 /// MCP 请求超时时间 (ms)
 pub const REQUEST_TIMEOUT_MS: u64 = 30000;
@@ -60,9 +60,9 @@ impl Default for McpConfig {
     fn default() -> Self {
         Self {
             tools: vec![
-                McpToolConfig::new(TOOL_ZHI, true, false), // 寸止工具不可禁用
-                McpToolConfig::new(TOOL_JI, false, true),   // 记忆管理工具可禁用，默认关闭
-                McpToolConfig::new(TOOL_SOU, false, true), // 代码搜索工具可禁用，默认关闭
+                McpToolConfig::new(TOOL_OPTIMUS, true, false), // 擎天柱不可禁用，领袖永不退场
+                McpToolConfig::new(TOOL_BUMBLEBEE, false, true), // 大黄蜂可禁用，默认待命
+                McpToolConfig::new(TOOL_MEGATRON, false, true), // 威震天可禁用，默认休眠
             ],
             continue_reply_enabled: DEFAULT_CONTINUE_REPLY_ENABLED,
             auto_continue_threshold: DEFAULT_AUTO_CONTINUE_THRESHOLD,
@@ -124,5 +124,5 @@ pub fn get_default_mcp_config() -> McpConfig {
 
 /// 检查是否为有效的工具 ID
 pub fn is_valid_tool_id(tool_id: &str) -> bool {
-    matches!(tool_id, TOOL_ZHI | TOOL_JI | TOOL_SOU)
+    matches!(tool_id, TOOL_OPTIMUS | TOOL_BUMBLEBEE | TOOL_MEGATRON)
 }

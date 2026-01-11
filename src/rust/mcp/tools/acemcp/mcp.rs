@@ -72,11 +72,11 @@ impl AcemcpTool {
             "properties": {
                 "project_root_path": {
                     "type": "string",
-                    "description": "项目根目录的绝对路径，使用正斜杠(/)作为分隔符。例如：C:/Users/username/projects/myproject"
+                    "description": "作战基地的绝对路径，使用正斜杠(/)作为分隔符。例如：C:/Users/username/projects/myproject"
                 },
                 "query": {
                     "type": "string",
-                    "description": "用于查找相关代码上下文的自然语言搜索查询。此工具执行语义搜索并返回与查询匹配的代码片段。例如：'日志配置设置初始化logger'（查找日志设置代码）、'用户认证登录'（查找认证相关代码）、'数据库连接池'（查找数据库连接代码）、'错误处理异常'（查找错误处理模式）、'API端点路由'（查找API路由定义）。工具返回带有文件路径和行号的格式化文本片段，显示相关代码的位置。"
+                    "description": "用于搜索相关代码情报的自然语言指令。威震天将执行语义搜索并返回与目标匹配的代码片段。例如：'日志配置设置初始化logger'（搜索日志设置代码）、'用户认证登录'（搜索认证相关代码）、'数据库连接池'（搜索数据库连接代码）。返回带有文件路径和行号的格式化情报。"
                 }
             },
             "required": ["project_root_path", "query"]
@@ -84,8 +84,8 @@ impl AcemcpTool {
 
         if let serde_json::Value::Object(schema_map) = schema {
             Tool {
-                name: Cow::Borrowed("sou"),
-                description: Some(Cow::Borrowed("基于查询在特定项目中搜索相关的代码上下文。此工具在搜索前自动执行增量索引，确保结果始终是最新的。返回代码库中与查询语义相关的格式化文本片段。")),
+                name: Cow::Borrowed("megatron"),
+                description: Some(Cow::Borrowed("🔫 威震天 - 霸天虎领袖！掌控代码搜索的绝对力量，在搜索前自动执行增量索引，确保情报始终是最新的。「我就是力量！」")),
                 input_schema: Arc::new(schema_map),
                 annotations: None,
             }

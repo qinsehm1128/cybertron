@@ -61,10 +61,10 @@ impl ServerHandler for ZhiServer {
             protocol_version: ProtocolVersion::V_2024_11_05,
             capabilities: ServerCapabilities::builder().enable_tools().build(),
             server_info: Implementation {
-                name: "Zhi-mcp".to_string(),
+                name: "Cybertron-MCP".to_string(),
                 version: env!("CARGO_PKG_VERSION").to_string(),
             },
-            instructions: Some("Zhi 智能代码审查工具，支持交互式对话和记忆管理".to_string()),
+            instructions: Some("🤖 赛博坦军团 - 变形金刚代码战队！擎天柱领衔，大黄蜂守护记忆，威震天掌控搜索。汽车人，变形出发！".to_string()),
         }
     }
 
@@ -86,77 +86,77 @@ impl ServerHandler for ZhiServer {
 
         let mut tools = Vec::new();
 
-        // 寸止工具始终可用（必需工具）
-        let zhi_schema = serde_json::json!({
+        // 擎天柱 - 领袖级交互核心（必需工具，永不退场）
+        let optimus_schema = serde_json::json!({
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
-                    "description": "要显示给用户的消息"
+                    "description": "擎天柱要传达给人类盟友的信息"
                 },
                 "predefined_options": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "预定义的选项列表（可选）"
+                    "description": "预设的战术选项列表（可选）"
                 },
                 "is_markdown": {
                     "type": "boolean",
-                    "description": "消息是否为Markdown格式，默认为true"
+                    "description": "信息是否为Markdown格式，默认为true"
                 }
             },
             "required": ["message"]
         });
 
-        if let serde_json::Value::Object(schema_map) = zhi_schema {
+        if let serde_json::Value::Object(schema_map) = optimus_schema {
             tools.push(Tool {
-                name: Cow::Borrowed("zhi"),
-                description: Some(Cow::Borrowed("智能代码审查交互工具，支持预定义选项、自由文本输入和图片上传")),
+                name: Cow::Borrowed("optimus"),
+                description: Some(Cow::Borrowed("🚛 擎天柱 - 汽车人领袖！负责与人类盟友建立通信链路，支持战术选项、自由指令输入和图像情报上传。「自由是所有智慧生命的权利」")),
                 input_schema: Arc::new(schema_map),
                 annotations: None,
             });
         }
 
-        // 记忆管理工具 - 仅在启用时添加
-        if self.is_tool_enabled("ji") {
-            let ji_schema = serde_json::json!({
+        // 大黄蜂 - 忠诚的记忆守护者（仅在启用时出战）
+        if self.is_tool_enabled("bumblebee") {
+            let bumblebee_schema = serde_json::json!({
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "description": "操作类型：记忆(添加记忆), 回忆(获取项目信息)"
+                        "description": "任务类型：记忆(存储情报), 回忆(提取战场信息)"
                     },
                     "project_path": {
                         "type": "string",
-                        "description": "项目路径（必需）"
+                        "description": "作战基地路径（必需）"
                     },
                     "content": {
                         "type": "string",
-                        "description": "记忆内容（记忆操作时必需）"
+                        "description": "情报内容（存储任务时必需）"
                     },
                     "category": {
                         "type": "string",
-                        "description": "记忆分类：rule(规范规则), preference(用户偏好), pattern(最佳实践), context(项目上下文)"
+                        "description": "情报分类：rule(作战规则), preference(盟友偏好), pattern(战术模式), context(战场背景)"
                     }
                 },
                 "required": ["action", "project_path"]
             });
 
-            if let serde_json::Value::Object(schema_map) = ji_schema {
+            if let serde_json::Value::Object(schema_map) = bumblebee_schema {
                 tools.push(Tool {
-                    name: Cow::Borrowed("ji"),
-                    description: Some(Cow::Borrowed("全局记忆管理工具，用于存储和管理重要的开发规范、用户偏好和最佳实践")),
+                    name: Cow::Borrowed("bumblebee"),
+                    description: Some(Cow::Borrowed("🚗 大黄蜂 - 忠诚的记忆守护者！负责存储和管理重要的作战规范、盟友偏好和最佳战术。虽然声带受损，但记忆永不磨灭！")),
                     input_schema: Arc::new(schema_map),
                     annotations: None,
                 });
             }
         }
 
-        // 代码搜索工具 - 仅在启用时添加
-        if self.is_tool_enabled("sou") {
+        // 威震天 - 强大的代码搜索引擎（仅在启用时苏醒）
+        if self.is_tool_enabled("megatron") {
             tools.push(AcemcpTool::get_tool_definition());
         }
 
-        log_debug!("返回给客户端的工具列表: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
+        log_debug!("赛博坦军团出战名单: {:?}", tools.iter().map(|t| &t.name).collect::<Vec<_>>());
 
         Ok(ListToolsResult {
             tools,
@@ -169,65 +169,65 @@ impl ServerHandler for ZhiServer {
         request: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> Result<CallToolResult, McpError> {
-        log_debug!("收到工具调用请求: {}", request.name);
+        log_debug!("收到作战指令: {}", request.name);
 
         match request.name.as_ref() {
-            "zhi" => {
-                // 解析请求参数
+            "optimus" => {
+                // 解析作战参数
                 let arguments_value = request.arguments
                     .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let zhi_request: ZhiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+                    .map_err(|e| McpError::invalid_params(format!("擎天柱无法解析指令: {}", e), None))?;
 
-                // 调用寸止工具
+                // 擎天柱出击
                 InteractionTool::zhi(zhi_request).await
             }
-            "ji" => {
-                // 检查记忆管理工具是否启用
-                if !self.is_tool_enabled("ji") {
+            "bumblebee" => {
+                // 检查大黄蜂是否已激活
+                if !self.is_tool_enabled("bumblebee") {
                     return Err(McpError::internal_error(
-                        "记忆管理工具已被禁用".to_string(),
+                        "大黄蜂正在休眠中，请先激活！".to_string(),
                         None
                     ));
                 }
 
-                // 解析请求参数
+                // 解析情报参数
                 let arguments_value = request.arguments
                     .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 let ji_request: JiyiRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+                    .map_err(|e| McpError::invalid_params(format!("大黄蜂无法解析情报: {}", e), None))?;
 
-                // 调用记忆工具
+                // 大黄蜂执行记忆任务
                 MemoryTool::jiyi(ji_request).await
             }
-            "sou" => {
-                // 检查代码搜索工具是否启用
-                if !self.is_tool_enabled("sou") {
+            "megatron" => {
+                // 检查威震天是否已苏醒
+                if !self.is_tool_enabled("megatron") {
                     return Err(McpError::internal_error(
-                        "代码搜索工具已被禁用".to_string(),
+                        "威震天尚未苏醒，请先唤醒！".to_string(),
                         None
                     ));
                 }
 
-                // 解析请求参数
+                // 解析搜索参数
                 let arguments_value = request.arguments
                     .map(serde_json::Value::Object)
                     .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
 
                 // 使用acemcp模块中的AcemcpRequest类型
                 let acemcp_request: crate::mcp::tools::acemcp::types::AcemcpRequest = serde_json::from_value(arguments_value)
-                    .map_err(|e| McpError::invalid_params(format!("参数解析失败: {}", e), None))?;
+                    .map_err(|e| McpError::invalid_params(format!("威震天无法解析目标: {}", e), None))?;
 
-                // 调用代码搜索工具
+                // 威震天发动搜索攻势
                 AcemcpTool::search_context(acemcp_request).await
             }
             _ => {
                 Err(McpError::invalid_request(
-                    format!("未知的工具: {}", request.name),
+                    format!("未知的战士: {}，不属于赛博坦军团！", request.name),
                     None
                 ))
             }
